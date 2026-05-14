@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-pdf-app",
-    "slug": "my-pdf-app",
+    "name": "TransformaPDF",
+    "slug": "transforma-pdf",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mypdfapp",
+    "scheme": "transformapdf",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -17,12 +17,21 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.delber.transformapdf",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "SEND",
+          "data": {
+            "mimeType": "image/*"
+          }
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
