@@ -35,6 +35,21 @@ export default function HomeScreen() {
     setImages((prev) => prev.filter((img) => img !== uri));
   }
 
+  async function saveToDevice(uri: string) {
+    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+    if (permissions.granted) {
+      const base64PDF = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+      const fileName = `TransformaPDF_${Date.now()}.pdf`;
+      const newUri = await FileSystem.StorageAccessFramework.createFileAsync(
+        permissions.directoryUri,
+        fileName,
+        'application/pdf'
+      );
+      await FileSystem.writeAsStringAsync(newUri, base64PDF, { encoding: 'base64' });
+      Alert.alert('Sucesso!', 'PDF salvo na pasta escolhida!');
+    }
+  }
+
   async function generatePDF() {
     if (images.length === 0) return;
     setLoading(true);
@@ -61,27 +76,27 @@ export default function HomeScreen() {
 
       const { uri } = await Print.printToFileAsync({ html });
 
-      // Pede para o usuário escolher a pasta (Downloads, etc)
-      const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-      if (permissions.granted) {
-        const base64PDF = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-        const fileName = `TransformaPDF_${Date.now()}.pdf`;
-        const newUri = await FileSystem.StorageAccessFramework.createFileAsync(
-          permissions.directoryUri,
-          fileName,
-          'application/pdf'
-        );
-        await FileSystem.writeAsStringAsync(newUri, base64PDF, { encoding: 'base64' });
-        Alert.alert('Sucesso!', 'PDF salvo na pasta escolhida!');
-      } else {
-        // Se recusar a pasta, só compartilha
-        await Sharing.shareAsync(uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Compartilhar PDF',
-          UTI: 'com.adobe.pdf',
-        });
-      }
+      Alert.alert(
+        'PDF gerado!',
+        'O que deseja fazer?',
+        [
+          {
+            text: 'Compartilhar',
+            onPress: () => {
+              Sharing.shareAsync(uri, {
+                mimeType: 'application/pdf',
+                dialogTitle: 'Compartilhar PDF',
+                UTI: 'com.adobe.pdf',
+              });
+            },
+          },
+          {
+            text: 'Salvar no dispositivo',
+            onPress: () => saveToDevice(uri),
+          },
+          { text: 'Cancelar', style: 'cancel' },
+        ]
+      );
 
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
@@ -126,7 +141,7 @@ export default function HomeScreen() {
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.buttonText}>
-                Gerar PDF ({images.length} imagem{images.length > 1 ? 'ns' : ''})
+                Gerar PDF ({images.length} {images.length === 1 ? 'imagem' : 'imagens'})
               </Text>
             )}
           </Pressable>
