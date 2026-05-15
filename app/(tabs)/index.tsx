@@ -62,14 +62,33 @@ export default function HomeScreen() {
           });
           const ext = uri.split('.').pop()?.toLowerCase();
           const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
-          return `<img src="data:${mime};base64,${base64}" style="width:100%; margin-bottom:16px;" />`;
+          return `<img src="data:${mime};base64,${base64}" />`;
         })
       );
 
       const html = `
         <html>
-          <body style="margin:0; padding:16px;">
-            ${imagesHtml.join('')}
+          <head>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { background: white; }
+              .page {
+                width: 100%;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                page-break-after: always;
+              }
+              img {
+                max-width: 100%;
+                max-height: 100vh;
+                object-fit: contain;
+              }
+            </style>
+          </head>
+          <body>
+            ${imagesHtml.map(img => `<div class="page">${img}</div>`).join('')}
           </body>
         </html>
       `;
